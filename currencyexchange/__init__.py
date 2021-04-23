@@ -11,9 +11,12 @@ db = SQLAlchemy()
 def create_app():
     app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret')
+    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    # api keys and other stuff required by libs or external apis
+    app.config['FIXER_SECRET_KEY'] = os.environ.get('FIXER_SECRET_KEY')
 
     db.init_app(app)
 
