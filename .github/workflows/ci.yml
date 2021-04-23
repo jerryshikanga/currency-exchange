@@ -1,0 +1,36 @@
+name: Currency Exchange CI
+
+on:
+  push:
+    branches: [production, staging]
+  pull_request:
+    branches: [ master, production, staging ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: [3.8]
+        poetry-version: [1.1.5]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install python dependencies
+      run: pip install -r requirements.txt
+    - name: Lint with Flake8
+      run: flake8
+    - name: Run Tests
+      env:
+        DATABASE_URL: psql://postgres:postgres@localhost:5432/fund_mgt
+        LOG_DATABASE_URL: psql://postgres:postgres@localhost:5432/fund_mgt
+        REDIS_URL: rediscache://localhost:6379/1?client_class=django_redis.client.DefaultClient
+        FLASK_APP: currencyexchange
+        FLASK_DEBUG: 1
+        SECRET_KEY: befeewkmie 
+      run: pytest
