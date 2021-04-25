@@ -3,6 +3,7 @@ import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy(session_options={"autoflush": False})
@@ -18,7 +19,9 @@ def create_app():
     # api keys and other stuff required by libs or external apis
     app.config['FIXER_SECRET_KEY'] = os.environ.get('FIXER_SECRET_KEY')
 
+    # instructions here https://flask-migrate.readthedocs.io/en/latest/
     db.init_app(app)
+    Migrate(app, db)
 
     # flask login session tracking
     login_manager = LoginManager()
