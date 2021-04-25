@@ -1,0 +1,8 @@
+cron:
+- description: "Daily job to refresh fx rates"
+  url: /refresh_fx_rates
+  schedule: every 24 hours
+  timezone: Africa/Nairobi
+  retry_parameters:
+    min_backoff_seconds: 300
+    max_doublings: 600
