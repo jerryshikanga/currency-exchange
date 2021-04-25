@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h3 class="title">
+        Welcome, {{current_user.name}}! Your balance is {{current_user.account_balance_formatted}}.
+    </h3>
+    </br>
+    <a href="{{ url_for('auth.edit_profile') }}"><button class="button">Edit Your Account Details</button></a>
+    <a href="{{ url_for('transactions.send_to_internal_account') }}">
+        <button class="button">Send to Internal Account</button>
+    </a>
+    </br>
+    </br>
+
+    <h2>Your previous transactions</h2>
+    <table class="table">
+        <tr>
+            <td>Date</td>
+            <td>Amount</td>
+            <td>Type</td>
+            <td>Balance before</td>
+            <td>Balace After</td>
+            <td>Description</td>
+        <tr>
+        {% for transaction in transactions %}
+            <tr>
+                <td>{{transaction.formatted_date}}</td>
+                <td>{{transaction.amount}}</td>
+                <td>{{transaction.type}}</td>
+                <td>{{transaction.balance_before_formatted}}</td>
+                <td>{{transaction.balance_after_formatted}}</td>
+                <td>{{transaction.description}}</td>
+            <tr>
+        {% endfor %}
+    </table>
+{% endblock %}

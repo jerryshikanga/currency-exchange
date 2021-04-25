@@ -1,3 +1,6 @@
+from datetime import datetime
+import random
+
 from currencyexchange import db
 from currencyexchange.database.fxrates import FxRate
 from currencyexchange.database.transactions import Transaction
@@ -39,3 +42,16 @@ def delete_all_transactions():
 def delete_all_rates():
     db.session.query(FxRate).delete()
     db.session.commit()
+
+
+def create_test_user(db_session, name='John Doe', email=None, balance=0, currency='KES'):
+    if email is None:
+        random.seed(datetime.now())
+        u_code = random.randint(1, 999)
+        d_code = random.randint(1000, 9999)
+        email = f"testuser{u_code}@domain_{d_code}.com"
+    user = User(name=name, email=email, account_balance=balance, 
+                default_currency_code=currency)
+    db_session.add(user)
+    db_session.commit()
+    return user

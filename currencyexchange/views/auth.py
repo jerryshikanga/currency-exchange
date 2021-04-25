@@ -1,9 +1,9 @@
+from currencyexchange.database.transactions import Transaction
 from flask import Blueprint, render_template, redirect, url_for, request, flash
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import login_user, logout_user, login_required
+from werkzeug.security import check_password_hash
+from flask_login import login_user, logout_user, login_required, current_user
 
 from currencyexchange.database.auth import User
-from currencyexchange import db
 
 auth = Blueprint('auth', __name__)
 
@@ -44,28 +44,20 @@ def signup():
 def signup_post():
     email = request.form.get('email')
     name = request.form.get('name')
+    currency = request.form.get('currency')
     password = request.form.get('password')
 
-    # if this returns a user, then the email already exists in database
-    user = User.query.filter_by(email=email).first()
-
-    if user:
+    try:
+        User.create(email, name, password, currency=currency)
+        return redirect(url_for('auth.login'))
+    except User.UserExistsException:
         # if a user is found,
         # we want to redirect back to signup page so user can try again
         flash('Email address already exists')
         return redirect(url_for('auth.signup'))
-
-    # create a new user with the form data.
-    # Hash the password so the plaintext version isn't saved.
-    new_user = User(email=email, name=name, account_balance=0,
-                    password=generate_password_hash(password, method='sha256')
-                    )
-
-    # add the new user to the database
-    db.session.add(new_user)
-    db.session.commit()
-
-    return redirect(url_for('auth.login'))
+    except Transaction.InvalidCurrencyException:
+        flash('The currency is not supported!')
+        return redirect(url_for('auth.signup'))
 
 
 @auth.route('/logout')
@@ -73,3 +65,32 @@ def signup_post():
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
+
+@auth.route('/editprofile')
+@login_required
+def edit_profile():
+    return render_template('profile_update_form.html',\
+                           current_user=current_user)
+
+
+@auth.route('/editprofilepost', methods=['POST', 'PUT', 'PATCH'])
+@login_required
+def edit_profile_post():
+    email = request.form.get('email')
+    name = request.form.get('name')
+    currency = request.form.get('currency')
+
+    # convert to our model obj
+    user = User.query.filter_by(email=current_user.email).first()
+    
+    try:
+        user.update(email, name, currency)
+        return redirect(url_for('main.profile'))
+    except User.UserExistsException:
+        flash('Email address already exists')
+        return redirect(url_for('auth.edit_profile'))
+    except Transaction.InvalidCurrencyException:
+        flash('The currency is not supported!')
+        return redirect(url_for('auth.edit_profile'))
+
