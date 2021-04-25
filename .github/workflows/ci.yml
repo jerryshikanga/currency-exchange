@@ -27,11 +27,11 @@ jobs:
       run: flake8 --exclude migrations
     - name: Create SQlite database and tables
       env:
-        DATABASE_URL: 'sqlite:///db.sqlite'
+        SQLALCHEMY_DATABASE_URI: 'sqlite:///db.sqlite'
       run: flask db upgrade
     - name: Run Tests
       env:
-        DATABASE_URL: 'sqlite:///db.sqlite'
+        SQLALCHEMY_DATABASE_URI: 'sqlite:///db.sqlite'
         FLASK_APP: currencyexchange
         FLASK_DEBUG: 1
         SECRET_KEY: befeewkmie 
