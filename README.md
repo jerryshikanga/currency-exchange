@@ -1,8 +1,10 @@
 # Currency Exchange
 
-# Architecture
+Current App Url : https://currency-exchange-311817.appspot.com
 
-# Steps to Run
+Github Repository URL : https://github.com/jerryshikanga/currency-exchange
+
+## Steps to Run
 
 If you have docker installed change to the root direcotry and do
 ```shell
@@ -10,10 +12,17 @@ docker build -t currencyexchange .
 docker run -dp 5000:5000 currencyexchange
 ```
 
+Deploy your cron jobs on Google Cloud Platform. You need to have authenticated and selected a project
+```shell
+gcloud init
+gcloud app deploy cron.yaml
+```
+
 If running on a local development environment:
 
 Requirements
 1. python 3.8
+2. MySQL Database. If you don't have one then SQLite can be used too
 
 Install required python libraries
 ```shell
@@ -50,4 +59,56 @@ Run the flask app
 ```shell
 flask run
 ```
-# Improvements
+
+## TOOLS USED
+The app is built using 
+1. Python3.8 Programming language
+2. Flask web framework. This come with the Jinja templating language
+3. MySQL Database 
+4. Docker containerization
+5. Git and Github for version control.
+6. Github Actions as the Continuous Integration tool
+7. Google Cloud Platform App Engine Flex for running the production application
+8. Google Cloud Scheduler for running cron jobs
+9. Gunicorn web server
+
+The external API used for currency conversion is https://fixer.io. 
+
+## DATABASE DESIGN
+![Database Design](docs/images/db_design.png)
+
+The app uses 3 database tables:
+1. Users - This table stores information about people logging into the platform
+2. Transactions - This table stores data about funds moving in and out of a user wallet
+3. FxRate - This table stores data on conversion of currency amongst the various currencies, say KES to USD
+
+The users table has a one to many relationship with the transactions table using the user_id field on the transactions table.
+
+The tables are represented as python objects using SQLAlchemy. CRUD operations are done using the SQL Alchemy ORM.
+
+## TESTING & CI
+The app has several types of testing and code quality tools
+1. Linter for validating the code syntax and formatting. For this the python package [flake8](http://flake8.pycqa.org) is used.
+2. Unit tests. These are defined to ensure each feature works as expected. They are tied to models and their respective functions.
+3. Integration tests. These are run on views to test out the whole user journey.
+
+So as to not make actual api calls, we mock requests to the api library. This is by use of the [python mock library](https://realpython.com/python-mock-library/).
+
+When code is committed and pushed to the github repository:
+1. Github actions checks out the code.
+2. The python requirements are installed
+3. Flake8 linter is run
+4. An sqlite database is created for testing
+5. Pytest is used to run automated tests
+6. Cloud build deploys to Google App Engine Flex
+
+If any of the above steps fails, then the process is exited.
+
+While the app is running, flask logs to std out and the logs can be viewed on Google Cloud Console Logs sections
+
+## SCALING
+When the app gains more users, several approaches can be used to scale:
+1. Using the cache. To get foreign exchange rates, we have to do a database calls. So many database calls may make the requests slow and thus a bad user experience. Using a cache will speed up this making the experience better.
+2. Using multiprocessing for some activities. This will provide a thread safe way to handle CPU intensive activities.
+3. Using a document based NoSQL database. These perform better than relational db, in this case MySQL.
+
