@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 from flask_login import UserMixin
+from werkzeug.security import generate_password_hash
 
 from currencyexchange import db
 from currencyexchange.database.fxrates import FxRate
@@ -22,16 +23,67 @@ class User(UserMixin, db.Model):
     transactions = db.relationship('Transaction', backref='user',
                                    lazy='joined')
 
+    class UserExistsException(Exception):
+        """
+        Will be riased when trying to add an exisitng user to db
+        """
+        pass
+
     def __repr__(self):
         return '<User %r>' % self.name
+
+    @property
+    def account_balance_formatted(self):
+        return "{} {:.2f}".format(self.default_currency_code,
+                                  float(self.account_balance))
+
+    @classmethod
+    def create(cls, email, name, password, balance=0, currency='KES'):
+        # Check if the user exists in db first
+        user = User.query.filter_by(email=email).first()
+        if user:
+            raise User.UserExistsException
+
+        # Validate the currency code entered by user
+        if not Transaction.validate_currency(currency):
+            raise Transaction.InvalidCurrencyException
+
+        # create a new user with the form data.
+        # Hash the password so the plaintext version isn't saved.
+        user = User(email=email, name=name, account_balance=balance,
+                    password=generate_password_hash(password, method='sha256'),
+                    default_currency_code=currency)
+
+        # add the new user to the database
+        db.session.add(user)
+        db.session.commit()
+        return user
+
+    def update(self, email, name, currency):
+        # Check if the email changed and new one already exists
+        if email != self.email and User.query.filter_by(email=email).first():
+            raise User.UserExistsException
+
+        # Validate the currency code entered by user
+        if not Transaction.validate_currency(currency):
+            raise Transaction.InvalidCurrencyException
+        self.email = email
+        self.name = name
+        self.default_currency_code = currency
+        db.session.commit()
 
     def transact(self, transaction_amount, currency_code, transaction_type,
                  description=None, commit=True):
         rate = FxRate.get_rate(currency_code, self.default_currency_code)
         amount = Decimal(transaction_amount) * rate
         balance_before = self.account_balance if self.account_balance else 0
-        self.account_balance += amount
-        # create transaction
+        if transaction_type == Transaction.Types.Credit:
+            self.account_balance += amount
+        else:
+            if balance_before < amount:
+                raise Transaction.InsufficientBalanceException
+            self.account_balance -= amount
+        # Create transaction for record purposes
         kwargs = dict(
             type=transaction_type, user_id=self.id,
             balance_before=balance_before,
@@ -39,6 +91,7 @@ class User(UserMixin, db.Model):
             user_currency_code=self.default_currency_code,
             transaction_currency_code=currency_code,
             date_transacted=datetime.now(),
+            description=description
             )
         db.session.add(Transaction(**kwargs))
         if commit:

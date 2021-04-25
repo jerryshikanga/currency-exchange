@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title">Update Profile</h3>
+    <div class="box">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="notification is-danger">
+                    {{ messages[0] }}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('auth.edit_profile_post') }}">
+            <div class="field">
+                <label>Email</label>
+                <div class="control">
+                    <input class="input" type="email" name="email" placeholder="Your Email" autofocus="" value="{{current_user.email}}">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Name</label>
+                <div class="control">
+                    <input class="input" type="name" name="name" placeholder="Your Name" value="{{current_user.name}}">
+                </div>
+            </div>
+            <div class="field">
+                <label>Default Currency</label>
+                <div class="control">
+                    <input class="input" type="text" name="currency" placeholder="Default Currency" value="{{current_user.default_currency_code}}">
+                </div>
+            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Update Profile</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
