@@ -1,4 +1,5 @@
 import os
+import logging
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -9,10 +10,20 @@ from flask_migrate import Migrate
 db = SQLAlchemy(session_options={"autoflush": False})
 
 
+def get_secret_key():
+    if os.environ.get('SECRET_KEY'):
+        return os.environ.get('SECRET_KEY')
+    else:
+        import hashlib
+        import datetime
+        s = str(datetime.datetime.now())
+        return hashlib.md5(s.encode()).hexdigest()
+
+
 def create_app():
     app = Flask(__name__)
 
-    app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
+    app.config['SECRET_KEY'] = get_secret_key()
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -36,6 +47,12 @@ def create_app():
         # use it in the query for the user
         return User.query.get(int(user_id))
 
+    # set up logging to std console using gunicorn
+    gunicorn_error_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers.extend(gunicorn_error_logger.handlers)
+    app.logger.setLevel(logging.WARNING)
+
+    # register blue prints
     # blueprint for auth routes in our app
     from currencyexchange.views.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
@@ -47,5 +64,9 @@ def create_app():
     # blueprint for non-auth parts of app
     from currencyexchange.views.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
+
+    # transactions app
+    from currencyexchange.views.transactions import transactions as txn_bp
+    app.register_blueprint(txn_bp)
 
     return app
