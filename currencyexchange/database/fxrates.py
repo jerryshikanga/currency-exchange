@@ -61,5 +61,7 @@ class FxRate(db.Model):
             # use bulk inserts
             db.session.add_all(objs_to_add)
             db.session.commit()
+            return len(api_rates)
         except Exception as e:
             logger.error(f"Error retrieving fx rates {e}")
+            return None
