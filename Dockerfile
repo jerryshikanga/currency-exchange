@@ -25,4 +25,4 @@ RUN flask db upgrade
 USER ${APP_USER}:${APP_USER}
 
 # Start web worker
-CMD gunicorn --bind 0.0.0.0:5000 wsgi:app --log-level DEBUG --reload --access-logfile /var/log/app/access.log --error-logfile /var/log/app/error.log
+CMD gunicorn --bind 0.0.0.0:$PORT wsgi:app --log-level DEBUG
