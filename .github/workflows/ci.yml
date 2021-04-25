@@ -26,6 +26,8 @@ jobs:
     - name: Lint with Flake8
       run: flake8 --exclude migrations
     - name: Create SQlite database and tables
+      env:
+        DATABASE_URL: 'sqlite:///db.sqlite'
       run: flask db upgrade
     - name: Run Tests
       env:
