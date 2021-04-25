@@ -26,6 +26,8 @@ class FxRate(db.Model):
         the direct values. So we do a conversion to usd first then
         to next currency. This avoids making extra calls to api
         """
+        if target_currency_code == from_currency_code:
+            return 1
         target_rate = FxRate.query.filter_by(
             target_currency_code=target_currency_code).\
             first().rate
@@ -47,7 +49,7 @@ class FxRate(db.Model):
             api_rates = requests.get(url).json()['rates']
             objs_to_add = []
             for key, value in api_rates.items():
-                rate_updatable = FxRate.query.find_by(
+                rate_updatable = FxRate.query.filter_by(
                     target_currency_code=key,
                     base_currency_code=base_currency_code
                 ).first()

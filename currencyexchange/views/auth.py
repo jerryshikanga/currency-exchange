@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import login_user, logout_user, login_required
@@ -57,7 +59,7 @@ def signup_post():
 
     # create a new user with the form data.
     # Hash the password so the plaintext version isn't saved.
-    new_user = User(email=email, name=name,
+    new_user = User(email=email, name=name, account_balance=0,
                     password=generate_password_hash(password, method='sha256')
                     )
 

@@ -48,4 +48,8 @@ def create_app():
     from currencyexchange.views.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
+    # transactions app
+    from currencyexchange.views.transactions import transactions as txn_bp
+    app.register_blueprint(txn_bp)
+
     return app
