@@ -69,3 +69,15 @@ class Transaction(db.Model):
 
     class InsufficientBalanceException(Exception):
         pass
+
+    @classmethod
+    def interaccount(cls, sender, recipient, amount, description=None):
+        """
+        Transfer amount from sender to reciepient
+        Currencies may be different. Conversion will be done by the respective accounts
+        """
+        if not description:
+            description = f"Inter-account transfer from {sender.name} to {recipient.name}"
+        currency = sender.default_currency_code
+        sender.transact(amount, currency, Transaction.Types.Debit, description)
+        recipient.transact(amount, currency, Transaction.Types.Credit, description)

@@ -11,25 +11,29 @@
                 </div>
             {% endif %}
         {% endwith %}
-        <form method="POST" action="/login">
+        <form method="POST" action="{{url_for('transactions.send_to_internal_account_post')}}">
             <div class="field">
+                <label>Target Account</label>
                 <div class="control">
-                    <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                    <input class="input is-large" type="email" name="recipient_email" placeholder="Receipient Email" required>
                 </div>
             </div>
 
             <div class="field">
+                <label>Amount</label>
                 <div class="control">
-                    <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                    <input class="input is-large" type="number" name="amount" placeholder="Amount to Send" required>
                 </div>
             </div>
+
             <div class="field">
-                <label class="checkbox">
-                    <input type="checkbox">
-                    Remember me
-                </label>
+                <label>Description</label>
+                <div class="control">
+                    <input class="input is-large" type="text" name="description" placeholder="Transaction Details" autofocus="">
+                </div>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Login</button>
+
+            <button class="button is-block is-info is-large is-fullwidth">Send</button>
         </form>
     </div>
 </div>

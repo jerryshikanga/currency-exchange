@@ -1,14 +1,12 @@
 import os
 import json
 from decimal import Decimal
-from unittest import TestCase
 
 from mock import patch
 
 from currencyexchange import db
-from currencyexchange.database.fxrates import FxRate
-from .utils import delete_all_rates, MockResponse
 from currencyexchange import create_app
+from .utils import TestCase
 
 
 class FxRateTests(TestCase):
@@ -21,6 +19,8 @@ class FxRateTests(TestCase):
 
     @patch('currencyexchange.database.fxrates.requests.get')
     def test_rates_retrieval(self, mock_requests):
+        from .utils import delete_all_rates, MockResponse
+        from currencyexchange.database.fxrates import FxRate
         delete_all_rates()
         expected_response = '{"success": true, "timestamp": 1619062744, "base": "EUR", "date": "2021-04-22", "rates": {"AED": 4.422861, "AFN": 93.376639, "ALL": 123.238632, "AMD": 628.811549, "ANG": 2.161392, "AOA": 793.029331, "ARS": 111.926674, "AUD": 1.552483, "AWG": 2.167663, "AZN": 2.040164, "BAM": 1.960927, "BBD": 2.43119}}'
         mock_requests.return_value = MockResponse(expected_response)
@@ -36,6 +36,8 @@ class FxRateTests(TestCase):
         self.assertAlmostEqual(aed.rate, expected_rate)
 
     def test_rate_conversion(self):
+        from .utils import delete_all_rates
+        from currencyexchange.database.fxrates import FxRate
         delete_all_rates()
         kes_rate = FxRate(target_currency_code='KES', rate=100)
         ugx_rate = FxRate(target_currency_code='UGX', rate=3000)

@@ -1,17 +1,5 @@
-from unittest import TestCase
-
-import pytest
-from werkzeug.security import generate_password_hash
-
+from .utils import TestCase
 from currencyexchange import create_app
-from currencyexchange.database.auth import User
-
-
-@pytest.fixture(scope='module')
-def new_user():
-    user = User(email='test@domain.com', name='John Doe',
-                password=generate_password_hash('password', method='sha256'))
-    return user
 
 
 class AuthViewTest(TestCase):

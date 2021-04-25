@@ -82,7 +82,7 @@ class User(UserMixin, db.Model):
         else:
             if balance_before < amount:
                 raise Transaction.InsufficientBalanceException
-            self.account_balance += amount
+            self.account_balance -= amount
         # Create transaction for record purposes
         kwargs = dict(
             type=transaction_type, user_id=self.id,
