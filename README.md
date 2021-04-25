@@ -18,11 +18,23 @@ export FLASK_DEBUG=1
 export SECRET_KEY=your_secret_key 
 ```
 
-Create the database tables in a python REPL
-```python
-from currencyexchange import db, create_app
-db.create_all(app=create_app()) # pass the create_app result so Flask-SQLAlchemy gets the configuration.
+Create a migration repository. This will add a migrations folder to your application.
+```shell
+flask db init
 ```
+
+Generate an initial migration. The migration script needs to be reviewed and edited, as Alembic currently does not detect every change you make to your models. In particular, Alembic is currently unable to detect table name changes, column name changes, or anonymously named constraints. 
+```shell
+flask db migrate -m "Initial migration."
+```
+
+Apply the migration to the database
+```shell
+flask db upgrade
+```
+
+Each time the database models change repeat the migrate and upgrade commands.
+
 
 Run the flask app
 ```shell
