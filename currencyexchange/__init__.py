@@ -19,6 +19,7 @@ def get_secret_key():
         s = str(datetime.datetime.now())
         return hashlib.md5(s.encode()).hexdigest()
 
+
 def is_test():
     return os.environ.get('PYTEST_CURRENT_TEST') is not None
 
@@ -32,7 +33,8 @@ def create_app():
     if is_test():
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     else:
-        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
+        app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.\
+            get('SQLALCHEMY_DATABASE_URI')
 
     # to improve perfomance we are not utilisng this feature
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
