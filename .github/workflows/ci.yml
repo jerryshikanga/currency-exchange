@@ -26,9 +26,7 @@ jobs:
     - name: Lint with Flake8
       run: flake8 --exclude migrations
     - name: Create SQlite database and tables
-      run: |
-        flask db migrate -m "Test env migration."
-        flask db upgrade
+      run: flask db upgrade
     - name: Run Tests
       env:
         DATABASE_URL: psql://postgres:postgres@localhost:5432/fund_mgt
