@@ -3,7 +3,6 @@ import json
 from decimal import Decimal
 from unittest import TestCase
 
-from requests import Response
 from mock import patch
 
 from currencyexchange import db
@@ -60,13 +59,13 @@ class UserTests(TestCase):
         """
         delete_all_users()
         user = User(name='John Doe', email='test1@domain.com')
-        # self.assertEqual(user.account_balance, 0)
+        self.assertEqual(user.account_balance, None)
 
     def test_account_credit_same_currency(self):
         delete_all_users()
         delete_all_transactions()
         user = User(name='John Doe', email='test2@domain.com')
-        db.session.add_all([user,])
+        db.session.add_all([user])
         db.session.commit()
         user.transact(5, 'KES', Transaction.Types.Credit)
         db.session.refresh(user)
@@ -97,7 +96,7 @@ class FxRateTests(TestCase):
     @patch('currencyexchange.database.fxrates.requests.get')
     def test_rates_retrieval(self, mock_requests):
         delete_all_rates()
-        expected_response = {
+        expected_response = json.dumps({
             "success": True,
             "timestamp": 1619062744,
             "base": "EUR",
@@ -116,12 +115,13 @@ class FxRateTests(TestCase):
                 "BAM": 1.960927,
                 "BBD": 2.43119
             }
-        }
-        mock_requests.return_value = MockResponse(json.dumps(expected_response))
+        })
+        mock_requests.return_value = MockResponse(expected_response)
         FxRate.refresh_from_api()
         aed = FxRate.query.filter_by(target_currency_code='AED').first()
-        self.assertAlmostEqual(aed.rate, Decimal(expected_response['rates']['AED']))
-        expected_updated_response = {
+        expected_rate = Decimal(expected_response['rates']['AED'])
+        self.assertAlmostEqual(aed.rate, expected_rate)
+        expected_updated_response = json.dumps({
             "success": True,
             "timestamp": 1619062744,
             "base": "EUR",
@@ -130,11 +130,12 @@ class FxRateTests(TestCase):
                 "AED": 16.422861,
                 "AFN": 93.376639,
             }
-        }
-        mock_requests.return_value = MockResponse(json.dumps(expected_updated_response))
+        })
+        mock_requests.return_value = MockResponse(expected_updated_response)
         FxRate.refresh_from_api()
         db.session.refresh(aed)
-        self.assertAlmostEqual(aed.rate, Decimal(expected_updated_response['rates']['AED']))
+        expected_rate = Decimal(expected_updated_response['rates']['AED'])
+        self.assertAlmostEqual(aed.rate, expected_rate)
 
     def test_rate_conversion(self):
         delete_all_rates()

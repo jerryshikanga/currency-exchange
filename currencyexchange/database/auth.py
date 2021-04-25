@@ -17,15 +17,16 @@ class User(UserMixin, db.Model):
     # profile_picture
     default_currency_code = db.Column(db.String(3), default='KES')
     account_balance = db.Column(
-        db.Float(precision=2, asdecimal=True), 
-        default=0, ) # min=0
+        db.Float(precision=2, asdecimal=True),
+        default=0, )
     transactions = db.relationship('Transaction', backref='user',
                                    lazy='joined')
 
     def __repr__(self):
         return '<User %r>' % self.name
 
-    def transact(self, transaction_amount, currency_code, transaction_type, description=None, commit=True):
+    def transact(self, transaction_amount, currency_code, transaction_type,
+                 description=None, commit=True):
         rate = FxRate.get_rate(currency_code, self.default_currency_code)
         amount = Decimal(transaction_amount) * rate
         balance_before = self.account_balance if self.account_balance else 0

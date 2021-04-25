@@ -22,4 +22,5 @@ class Transaction(db.Model):
         Credit = 'Credit'
 
     def __repr__(self) -> str:
-        return f"{self.transaction_currency_code} {self.amount} {self.user.name}"
+        return f"""{self.transaction_currency_code} \
+                {self.amount}{self.user.name}"""
