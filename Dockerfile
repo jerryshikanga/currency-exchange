@@ -2,6 +2,9 @@ FROM python:3.8-slim-buster
 
 ENV FLASK_APP=currencyexchange
 ENV FLASK_DEBUG=1
+ENV FIXER_SECRET_KEY=76d533b7b72a5b78ee115c4000c55118
+ENV SECRET_KEY=datasecretkey
+ENV SQLALCHEMY_DATABASE_URI=mysql+pymysql://koko:koko@34.65.54.154:3306/currencyexchange
 
 ENV PROJECT_ROOT /app
 WORKDIR $PROJECT_ROOT

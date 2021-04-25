@@ -24,7 +24,7 @@ def create_app():
     app = Flask(__name__)
 
     app.config['SECRET_KEY'] = get_secret_key()
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('SQLALCHEMY_DATABASE_URI')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # api keys and other stuff required by libs or external apis
