@@ -70,7 +70,7 @@ def logout():
 @auth.route('/editprofile')
 @login_required
 def edit_profile():
-    return render_template('profile_update_form.html',\
+    return render_template('profile_update_form.html',
                            current_user=current_user)
 
 
@@ -83,7 +83,7 @@ def edit_profile_post():
 
     # convert to our model obj
     user = User.query.filter_by(email=current_user.email).first()
-    
+
     try:
         user.update(email, name, currency)
         return redirect(url_for('main.profile'))
@@ -93,4 +93,3 @@ def edit_profile_post():
     except Transaction.InvalidCurrencyException:
         flash('The currency is not supported!')
         return redirect(url_for('auth.edit_profile'))
-

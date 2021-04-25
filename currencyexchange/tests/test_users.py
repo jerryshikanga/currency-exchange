@@ -11,7 +11,8 @@ class UserTests(TestCase):
         """
         from currencyexchange.tests.utils import create_test_user
         password = 'secret_password'
-        user = create_test_user(db.session, email='myv3@d483.com', password=password)
+        user = create_test_user(db.session, email='myv3@d483.com',
+                                password=password)
         self.assertEqual(user.account_balance, 0)
         self.assertEqual(user.default_currency_code, 'KES')
         self.assertNotEqual(user.password, password)
@@ -21,11 +22,12 @@ class UserTests(TestCase):
     def test_account_balance_formatting(self):
         from currencyexchange.tests.utils import create_test_user
         user = create_test_user(db.session, currency='USD', balance=546.0)
-        expected = f"USD 546.00"
+        expected = "USD 546.00"
         self.assertEqual(user.account_balance_formatted, expected)
 
     def test_account_credit_same_currency(self):
-        from currencyexchange.tests.utils import create_test_user, delete_all_users, delete_all_transactions
+        from currencyexchange.tests.utils import create_test_user, \
+            delete_all_users, delete_all_transactions
         delete_all_users()
         delete_all_transactions()
         from currencyexchange.database.transactions import Transaction
@@ -53,7 +55,7 @@ class UserTests(TestCase):
         from currencyexchange.tests.utils import create_test_user
         from currencyexchange.database.transactions import Transaction
         user = create_test_user(db.session, balance=125, currency='KES')
-        initial_balance= user.account_balance
+        initial_balance = user.account_balance
         with self.assertRaises(Transaction.InsufficientBalanceException):
             user.transact(525, 'KES', Transaction.Types.Debit)
-            self.assertEqual(user.account_balance, initial_balance) 
+            self.assertEqual(user.account_balance, initial_balance)

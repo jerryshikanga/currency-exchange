@@ -55,15 +55,16 @@ def delete_all_rates():
     db.session.commit()
 
 
-def create_test_user(db_session, name='John Doe', email=None, balance=0, currency='KES', password='password'):
+def create_test_user(db_session, name='John Doe', email=None, balance=0,
+                     currency='KES', password='password'):
     if email is None:
         random.seed(datetime.now())
         u_code = random.randint(1, 999)
         d_code = random.randint(1000, 9999)
         email = f"testuser{u_code}@domain_{d_code}.com"
     from currencyexchange.database.auth import User
-    password=generate_password_hash(password, method='sha256')
-    user = User(name=name, email=email, account_balance=balance, 
+    password = generate_password_hash(password, method='sha256')
+    user = User(name=name, email=email, account_balance=balance,
                 default_currency_code=currency, password=password)
     db_session.add(user)
     db_session.commit()

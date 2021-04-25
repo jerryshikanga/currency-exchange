@@ -5,6 +5,7 @@ from flask_login import login_required, current_user
 transactions = Blueprint('transactions',  __name__)
 logger = logging.getLogger(__name__)
 
+
 @transactions.route('/send_to_internal_account')
 @login_required
 def send_to_internal_account():
@@ -16,7 +17,7 @@ def send_to_internal_account():
 def send_to_internal_account_post():
     amount = request.form.get('amount')
     description = request.form.get('description')
-    recipient_email  =request.form.get('recipient_email')
+    recipient_email = request.form.get('recipient_email')
     from currencyexchange.database.auth import User
     recipient = User.query.filter_by(email=recipient_email).first()
     if not recipient:

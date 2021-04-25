@@ -34,7 +34,7 @@ class User(UserMixin, db.Model):
 
     @property
     def account_balance_formatted(self):
-        return "{} {:.2f}".format(self.default_currency_code,\
+        return "{} {:.2f}".format(self.default_currency_code,
                                   float(self.account_balance))
 
     @classmethod
@@ -43,7 +43,7 @@ class User(UserMixin, db.Model):
         user = User.query.filter_by(email=email).first()
         if user:
             raise User.UserExistsException
-        
+
         # Validate the currency code entered by user
         if not Transaction.validate_currency(currency):
             raise Transaction.InvalidCurrencyException
@@ -61,9 +61,9 @@ class User(UserMixin, db.Model):
 
     def update(self, email, name, currency):
         # Check if the email changed and new one already exists
-        if email !=  self.email and User.query.filter_by(email=email).first():
+        if email != self.email and User.query.filter_by(email=email).first():
             raise User.UserExistsException
-        
+
         # Validate the currency code entered by user
         if not Transaction.validate_currency(currency):
             raise Transaction.InvalidCurrencyException

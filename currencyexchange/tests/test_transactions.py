@@ -1,6 +1,4 @@
 from currencyexchange.database.fxrates import FxRate
-from re import U
-from mock import patch
 
 from .utils import TestCase, create_test_user
 from currencyexchange import db
