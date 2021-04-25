@@ -3,6 +3,15 @@
 # Architecture
 
 # Steps to Run
+
+If you have docker installed change to the root direcotry and do
+```shell
+docker build -t currencyexchange .
+docker run -dp 5000:5000 currencyexchange
+```
+
+If running on a local development environment:
+
 Requirements
 1. python 3.8
 
@@ -16,6 +25,7 @@ Create envrionment variables required to run
 export FLASK_APP=currencyexchange
 export FLASK_DEBUG=1
 export SECRET_KEY=your_secret_key 
+export FIXER_SECRET_KEY=yourkeyhere # Get this from http://fixer.io. Its important for currency exchange purposes
 ```
 
 Create a migration repository. This will add a migrations folder to your application.
