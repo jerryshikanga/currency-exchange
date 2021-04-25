@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
 # init SQLAlchemy so we can use it later in our models
-db = SQLAlchemy()
+db = SQLAlchemy(session_options={"autoflush": False})
 
 
 def create_app():
@@ -34,11 +34,15 @@ def create_app():
         return User.query.get(int(user_id))
 
     # blueprint for auth routes in our app
-    from .auth import auth as auth_blueprint
+    from currencyexchange.views.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
 
+    # blueprint for currency exchange routes in our app
+    from currencyexchange.views.fxrates import fxrates as fxrates_blueprint
+    app.register_blueprint(fxrates_blueprint)
+
     # blueprint for non-auth parts of app
-    from .main import main as main_blueprint
+    from currencyexchange.views.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
     return app

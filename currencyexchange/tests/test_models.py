@@ -5,7 +5,9 @@ from unittest import TestCase
 from requests import Response
 from mock import patch
 
+from currencyexchange import db
 from currencyexchange.database.fxrates import FxRate
+from currencyexchange import create_app
 
 
 def test_new_user():
@@ -17,13 +19,22 @@ def test_new_user():
     pass
 
 
+def delete_all_rates():
+    db.session.query(FxRate).delete()
+    db.session.commit()
+
+
 class FxRateTests(TestCase):
     def setUp(self) -> None:
         os.environ['FIXER_SECRET_KEY'] = 'test'
+        self.app = create_app()
+        ctx = self.app.app_context()
+        ctx.push()
         return super().setUp()
 
     @patch('currencyexchange.database.fxrates.requests')
     def test_rates_retrieval(self, mock_requests):
+        delete_all_rates()
         response = Response()
         response.status_code = 200
         expected_response = {
@@ -48,7 +59,16 @@ class FxRateTests(TestCase):
         }
         response.raw = json.dumps(expected_response)
         mock_requests.return_value = response
-        FxRate.refresh_from_api()
 
+        FxRate.refresh_from_api()
         # aed = FxRate.query.filter_by(target_currency_code='AED').first()
         # self.assertAlmostEqual(aed.rate, expected_response['rates']['AED'])
+
+    def test_rate_conversion(self):
+        delete_all_rates()
+        kes_rate = FxRate(target_currency_code='KES', rate=100)
+        ugx_rate = FxRate(target_currency_code='UGX', rate=3000)
+        db.session.add_all([kes_rate, ugx_rate])
+        db.session.commit()
+        kes_to_ugx = FxRate.get_rate('KES', 'UGX')
+        self.assertEqual(kes_to_ugx, 30)

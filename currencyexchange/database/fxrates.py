@@ -16,6 +16,9 @@ class FxRate(db.Model):
     rate = db.Column(db.Float(precision=4, asdecimal=True))
     last_updated = db.Column(db.DateTime(), onupdate=datetime.now)
 
+    def __repr__(self) -> str:
+        return f"{self.base_currency_code} To {self.target_currency_code}"
+
     @classmethod
     def get_rate(cls, from_currency_code: str, target_currency_code: str):
         """
@@ -23,10 +26,14 @@ class FxRate(db.Model):
         the direct values. So we do a conversion to usd first then
         to next currency. This avoids making extra calls to api
         """
-        target_rate = FxRate.query.filter_by(target_currency_code=target_currency_code).first().rate
+        target_rate = FxRate.query.filter_by(
+            target_currency_code=target_currency_code).\
+            first().rate
         if from_currency_code.upper() == "USD":
             return target_rate
-        from_rate = FxRate.query.filter_by(target_currency_code=from_currency_code).first().rate
+        from_rate = FxRate.query.filter_by(
+            target_currency_code=from_currency_code).\
+            first().rate
         return target_rate/from_rate
 
     @classmethod
@@ -38,11 +45,19 @@ class FxRate(db.Model):
         url = f"http://data.fixer.io/api/latest?access_key={key}&format=1"
         try:
             api_rates = requests.get(url).json()['rates']
-            rates_db_objs = []
+            objs_to_add = []
             for key, value in api_rates.items():
-                rates_db_objs.append(FxRate(target_currency_code=key,
-                                            rate=value))
-            db.session.add_all(rates_db_objs)
+                rate_updatable = FxRate.query.find_by(
+                    target_currency_code=key,
+                    base_currency_code=base_currency_code
+                ).first()
+                if rate_updatable:
+                    rate_updatable.rate = value
+                else:
+                    objs_to_add.append(FxRate(target_currency_code=key,
+                                              rate=value))
+            # use bulk inserts
+            db.session.add_all(objs_to_add)
             db.session.commit()
         except Exception as e:
             logger.error(f"Error retrieving fx rates {e}")
