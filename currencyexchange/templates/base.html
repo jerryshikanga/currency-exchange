@@ -47,6 +47,13 @@
 
         <div class="hero-body">
             <div class="container has-text-centered">
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        <div class="notification is-success">
+                            {{ messages[0] }}
+                        </div>
+                    {% endif %}
+                {% endwith %}
                {% block content %}
                {% endblock %}
             </div>

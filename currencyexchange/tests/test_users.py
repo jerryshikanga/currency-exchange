@@ -27,6 +27,11 @@ class UserTests(TestCase):
         self.assertEqual(user.email, 'myv3@d483.com')
 
     def test_account_balance_formatting(self):
+        """
+        GIVEN a User model
+        WHEN a balance is accessed
+        THEN it should be returned in the curreny amount.decimal format
+        """
         from currencyexchange.tests.utils import create_test_user
         user = create_test_user(db.session, currency='USD', balance=546.0)
         expected = "USD 546.00"

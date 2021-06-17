@@ -5,9 +5,14 @@
         Welcome, {{current_user.name}}! Your balance is {{current_user.account_balance_formatted}}.
     </h3>
     </br>
-    <a href="{{ url_for('auth.edit_profile') }}"><button class="button">Edit Your Account Details</button></a>
+    <a href="{{ url_for('auth.edit_profile') }}">
+        <button class="button">Edit Your Account Details</button>
+    </a>
     <a href="{{ url_for('transactions.send_to_internal_account') }}">
         <button class="button">Send to Internal Account</button>
+    </a>
+    <a href="{{ url_for('transactions.deposit') }}">
+        <button class="button">Deposit</button>
     </a>
     </br>
     </br>

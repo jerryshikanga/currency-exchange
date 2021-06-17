@@ -32,3 +32,17 @@ def send_to_internal_account_post():
     except Exception:
         logger.error(f"Failed to do inter account transaction {kwargs}")
         return redirect(url_for('transactions.send_to_internal_account'))
+
+
+@transactions.route('/deposit_mm')
+@login_required
+def deposit():
+    return render_template('deposit.html')
+
+
+@transactions.route('/deposit_post', methods=['POST'])
+@login_required
+def deposit_post():
+    amount = request.form.get('amount')
+    flash(f'Your deposit of {amount} has been received successfully.')
+    return redirect(url_for('main.profile'))

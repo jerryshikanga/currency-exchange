@@ -59,6 +59,11 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return user
 
+    def update_password(self, new_password):
+        self.password = generate_password_hash(new_password, method='sha256')
+        db.session.commit()
+        return self
+
     def update(self, email, name, currency):
         # Check if the email changed and new one already exists
         if email != self.email and User.query.filter_by(email=email).first():
