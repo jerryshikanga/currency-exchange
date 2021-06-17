@@ -4,10 +4,10 @@ from .utils import TestCase
 
 class UserTests(TestCase):
     def setUp(self):
-        from currencyexchange.tests.utils import delete_all_users, delete_all_transactions
-        delete_all_users()
-        delete_all_transactions()
-    
+        from currencyexchange.tests import utils
+        utils.delete_all_users()
+        utils.delete_all_transactions()
+
     def test_new_user(self):
         """
         GIVEN a User model
