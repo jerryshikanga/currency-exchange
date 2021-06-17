@@ -26,6 +26,9 @@ class FxRate(db.Model):
         the direct values. So we do a conversion to usd first then
         to next currency. This avoids making extra calls to api
         """
+        # cache_key = f"{from_currency_code}_{target_currency_code}_{date}"
+        # if cache contains the value we return the ValueError
+
         if target_currency_code == from_currency_code:
             return 1
         target_rate = FxRate.query.filter_by(
@@ -44,9 +47,10 @@ class FxRate(db.Model):
         This will run to retrive data from the api and load into the db
         """
         key = os.environ['FIXER_SECRET_KEY']
-        url = f"http://data.fixer.io/api/latest?access_key={key}&format=1"
+        url = "http://data.fixer.io/api/latest"
+        payload = dict(access_key=key, format=1, base=base_currency_code)
         try:
-            api_rates = requests.get(url).json()['rates']
+            api_rates = requests.get(url, params=payload).json()['rates']
             objs_to_add = []
             for key, value in api_rates.items():
                 rate_updatable = FxRate.query.filter_by(

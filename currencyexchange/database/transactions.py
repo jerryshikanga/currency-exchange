@@ -86,3 +86,4 @@ class Transaction(db.Model):
                         description)
         recipient.transact(amount, currency, Transaction.Types.Credit,
                            description)
+        db.session.commit()
