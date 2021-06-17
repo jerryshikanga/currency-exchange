@@ -86,6 +86,31 @@ The users table has a one to many relationship with the transactions table using
 
 The tables are represented as python objects using SQLAlchemy. CRUD operations are done using the SQL Alchemy ORM.
 
+## ACCESSING SHELL
+At times you may want to view or update data from the command line. Flask requires app context to operate in this environment. Similarly, environment variables have to be set.
+
+The following script will make your life easier
+
+```python
+# Update env variables
+import os
+os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+os.environ['FIXER_SECRET_KEY'] = 'fixer.io_secret_key'
+os.environ['SECRET_KEY'] = 'secretkey'
+os.environ['FLASK_ENV'] = 'development' 
+
+
+# Push the app context
+from currencyexchange import create_app
+app = create_app()
+app.app_context().push()
+
+
+# Sample query
+from currencyexchange.database.auth import User
+User.query.all()
+```
+
 ## TESTING & CI
 The app has several types of testing and code quality tools
 1. Linter for validating the code syntax and formatting. For this the python package [flake8](http://flake8.pycqa.org) is used.

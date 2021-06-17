@@ -3,6 +3,11 @@ from .utils import TestCase
 
 
 class UserTests(TestCase):
+    def setUp(self):
+        from currencyexchange.tests.utils import delete_all_users, delete_all_transactions
+        delete_all_users()
+        delete_all_transactions()
+    
     def test_new_user(self):
         """
         GIVEN a User model
@@ -26,12 +31,10 @@ class UserTests(TestCase):
         self.assertEqual(user.account_balance_formatted, expected)
 
     def test_account_credit_same_currency(self):
-        from currencyexchange.tests.utils import create_test_user, \
-            delete_all_users, delete_all_transactions
-        delete_all_users()
-        delete_all_transactions()
+        from currencyexchange.tests.utils import create_test_user
         from currencyexchange.database.transactions import Transaction
         user = create_test_user(db.session)
+        self.assertEqual(user.account_balance, 0)
         user.transact(5, 'KES', Transaction.Types.Credit)
         db.session.refresh(user)
         self.assertEqual(user.account_balance, 5)
