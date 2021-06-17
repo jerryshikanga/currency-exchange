@@ -1,3 +1,5 @@
+from mock import patch
+
 from currencyexchange import db
 from .utils import TestCase
 
@@ -53,6 +55,17 @@ class UserTests(TestCase):
         user = create_test_user(db.session)
         with self.assertRaises(Transaction.InvalidCurrencyException):
             user.update(user.email, user.name, 'K123')
+
+    @patch("currencyexchange.database.fxrates.FxRate.get_rate")
+    def test_user_currency_update_update_balance_too(self, mock_get_rate):
+        mock_get_rate.return_value = 100
+        from currencyexchange.tests.utils import create_test_user
+        user = create_test_user(db.session, balance=1, currency='USD')
+        self.assertEqual(user.account_balance, 1)
+        user.update("newemail@domain.com", "New John", "KES")
+        db.session.refresh(user)
+        self.assertEqual(user.default_currency_code, "KES")
+        self.assertEqual(user.account_balance, 100)
 
     def test_cannot_debit_less_than_balance(self):
         from currencyexchange.tests.utils import create_test_user

@@ -64,12 +64,17 @@ class User(UserMixin, db.Model):
         if email != self.email and User.query.filter_by(email=email).first():
             raise User.UserExistsException
 
-        # Validate the currency code entered by user
-        if not Transaction.validate_currency(currency):
-            raise Transaction.InvalidCurrencyException
+        # check if the user has chnged his/her currency
+        # if he has the we have to update his balance too
+        if self.default_currency_code != currency:
+            # Validate the new currency code entered by user
+            if not Transaction.validate_currency(currency):
+                raise Transaction.InvalidCurrencyException
+            rate = FxRate.get_rate(self.default_currency_code, currency)
+            self.account_balance = self.account_balance * rate
+            self.default_currency_code = currency
         self.email = email
         self.name = name
-        self.default_currency_code = currency
         db.session.commit()
 
     def transact(self, transaction_amount, currency_code, transaction_type,
