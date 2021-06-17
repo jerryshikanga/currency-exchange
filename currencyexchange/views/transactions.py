@@ -46,3 +46,17 @@ def deposit_post():
     amount = request.form.get('amount')
     flash(f'Your deposit of {amount} has been received successfully.')
     return redirect(url_for('main.profile'))
+
+
+@transactions.route('/withdraw_mm')
+@login_required
+def withdraw():
+    return render_template('withdraw.html')
+
+
+@transactions.route('/withdraw_post', methods=['POST'])
+@login_required
+def withdraw_post():
+    amount = request.form.get('amount')
+    flash(f'Your withdrawal of {amount} has been received successfully.')
+    return redirect(url_for('main.profile'))

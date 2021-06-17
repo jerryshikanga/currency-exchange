@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title">Deposit via Mobile Money</h3>
+    <h3 class="title">Withdraw via Mobile Money</h3>
     <div class="box">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
@@ -11,15 +11,15 @@
                 </div>
             {% endif %}
         {% endwith %}
-        <form method="POST" action="{{url_for('transactions.deposit_post')}}">
+        <form method="POST" action="{{url_for('transactions.withdraw_post')}}">
             <div class="field">
                 <label>Amount</label>
                 <div class="control">
-                    <input class="input is-large" type="number" name="amount" placeholder="Amount to Deposit" required>
+                    <input class="input is-large" type="number" name="amount" placeholder="Amount to Withdraw" required>
                 </div>
             </div>
 
-            <button class="button is-block is-info is-large is-fullwidth">Deposit</button>
+            <button class="button is-block is-info is-large is-fullwidth">Withdraw</button>
         </form>
     </div>
 </div>

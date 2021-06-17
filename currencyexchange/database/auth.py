@@ -107,3 +107,14 @@ class User(UserMixin, db.Model):
         if commit:
             db.session.commit()
         return kwargs
+
+    def withdraw(self, amount):
+        description = f"Withdrawal initiated on {datetime.now()}"
+        if amount > self.account_balance:
+            raise Transaction.InsufficientBalanceException
+        # Add withdrawal logic here
+
+        # Finally debit account
+        self.transact(amount, self.default_currency_code,
+                      Transaction.Types.Debit,
+                      description=description)
