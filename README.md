@@ -1,8 +1,38 @@
 # Currency Exchange
 
-Current App Url : https://currency-exchange-311817.appspot.com
+This is an application to demo basic transactions.
+It has the following functionality
+1. Deposit via Mobile Money (WIP)
+2. Withdraw via Mobile Money (WIP)
+3. Send to another user in any currency
+4. View your transactional history
+5. User creation, authentication and update.
 
-Github Repository URL : https://github.com/jerryshikanga/currency-exchange
+## TOOLS USED
+The app is built using 
+1. Python3.8 Programming language
+2. Flask web framework. This come with the Jinja templating language
+3. MySQL Database 
+4. Docker containerization
+5. Git and Github for version control.
+6. Github Actions as the Continuous Integration tool
+7. Google Cloud Platform App Engine Flex for running the production application
+8. Google Cloud Scheduler for running cron jobs
+9. Gunicorn web server
+
+The external API used for currency conversion is https://fixer.io. 
+
+## DATABASE DESIGN
+![Database Design](docs/images/db_design.png)
+
+The app uses 3 database tables:
+1. Users - This table stores information about people logging into the platform
+2. Transactions - This table stores data about funds moving in and out of a user wallet
+3. FxRate - This table stores data on conversion of currency amongst the various currencies, say KES to USD
+
+The users table has a one to many relationship with the transactions table using the user_id field on the transactions table.
+
+The tables are represented as python objects using SQLAlchemy. CRUD operations are done using the SQL Alchemy ORM.
 
 ## Steps to Run
 
@@ -59,32 +89,6 @@ Run the flask app
 ```shell
 flask run
 ```
-
-## TOOLS USED
-The app is built using 
-1. Python3.8 Programming language
-2. Flask web framework. This come with the Jinja templating language
-3. MySQL Database 
-4. Docker containerization
-5. Git and Github for version control.
-6. Github Actions as the Continuous Integration tool
-7. Google Cloud Platform App Engine Flex for running the production application
-8. Google Cloud Scheduler for running cron jobs
-9. Gunicorn web server
-
-The external API used for currency conversion is https://fixer.io. 
-
-## DATABASE DESIGN
-![Database Design](docs/images/db_design.png)
-
-The app uses 3 database tables:
-1. Users - This table stores information about people logging into the platform
-2. Transactions - This table stores data about funds moving in and out of a user wallet
-3. FxRate - This table stores data on conversion of currency amongst the various currencies, say KES to USD
-
-The users table has a one to many relationship with the transactions table using the user_id field on the transactions table.
-
-The tables are represented as python objects using SQLAlchemy. CRUD operations are done using the SQL Alchemy ORM.
 
 ## ACCESSING SHELL
 At times you may want to view or update data from the command line. Flask requires app context to operate in this environment. Similarly, environment variables have to be set.
