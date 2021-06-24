@@ -74,9 +74,9 @@ def edit_profile():
     form = UserUpdateForm()
     form.currency.data = current_user.default_currency_code
     form.name.data = current_user.name
-    # form.phone.data = current_user.default_currency_code
+    form.phone.data = current_user.phone_number
     form.email.data = current_user.email
-    
+
     return render_template('profile_update_form.html',
                            current_user=current_user,
                            form=form)
@@ -85,15 +85,15 @@ def edit_profile():
 @auth.route('/editprofilepost', methods=['POST', 'PUT', 'PATCH'])
 @login_required
 def edit_profile_post():
-    email = request.form.get('email')
-    name = request.form.get('name')
-    currency = request.form.get('currency')
-
+    form = UserUpdateForm(request.form)
+    if not form.validate():
+        flash(f'Your form has errors : {form.errors}')
+        return redirect(url_for('auth.edit_profile'))
     # convert to our model obj
     user = User.query.filter_by(email=current_user.email).first()
 
     try:
-        user.update(email, name, currency)
+        user.update(form.email.data, form.name.data, form.currency.data, form.phone.data)
         return redirect(url_for('main.profile'))
     except User.UserExistsException:
         flash('Email address already exists')

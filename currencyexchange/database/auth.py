@@ -4,7 +4,6 @@ from datetime import datetime
 from decimal import Decimal
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
-from sqlalchemy_utils import PhoneNumber
 import beyonic
 
 from currencyexchange import db
@@ -28,15 +27,8 @@ class User(UserMixin, db.Model):
         default=0, )
     transactions = db.relationship('Transaction', backref='user',
                                    lazy='joined')
-    
-    _phone_number = db.Column(db.Unicode(255))
-    phone_country_code = db.Column(db.Unicode(8))
 
-    phone_number = db.composite(
-        PhoneNumber,
-        _phone_number,
-        phone_country_code
-    )
+    phone_number = db.Column(db.String(100))
 
     class UserExistsException(Exception):
         """
@@ -79,7 +71,7 @@ class User(UserMixin, db.Model):
         db.session.commit()
         return self
 
-    def update(self, email, name, currency):
+    def update(self, email, name, currency, phone_number):
         # Check if the email changed and new one already exists
         if email != self.email and User.query.filter_by(email=email).first():
             raise User.UserExistsException
@@ -95,6 +87,7 @@ class User(UserMixin, db.Model):
             self.default_currency_code = currency
         self.email = email
         self.name = name
+        self.phone_number = phone_number
         db.session.commit()
 
     def transact(self, transaction_amount, currency_code, transaction_type,
@@ -146,7 +139,7 @@ class User(UserMixin, db.Model):
             else:
                 first_name, last_name = self.name, ""
             payment = beyonic.Payment.create(
-                phonenumber='+80000000001',
+                phonenumber=self.phone_number,
                 first_name=first_name,
                 last_name=last_name,
                 amount=amount,

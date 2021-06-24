@@ -14,7 +14,7 @@
             {% endif %}
         {% endwith %}
         <form method="POST" action="{{ url_for('auth.edit_profile_post') }}">
-
+            {{ form.csrf_token }}
             {{ render_field(form.email, class_="input") }}
             {{ render_field(form.name, class_="input") }}
             {{ render_field(form.phone, class_="input") }}
