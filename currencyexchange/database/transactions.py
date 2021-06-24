@@ -1,5 +1,4 @@
 import datetime
-from types import TracebackType
 from currencyexchange import db
 
 
@@ -48,7 +47,7 @@ class Transaction(db.Model):
         return code in Transaction.supported_currencies
 
     @classmethod
-    def validate_withdrawal_deposit_currency(self, code):
+    def validate_withdrawal_deposit_currency(cls, code):
         return code in Transaction.supported_deposit_withdrawal_currencies
 
     class Types:

@@ -59,7 +59,7 @@ class UserTests(TestCase):
         from currencyexchange.database.transactions import Transaction
         user = create_test_user(db.session)
         with self.assertRaises(Transaction.InvalidCurrencyException):
-            user.update(user.email, user.name, 'K123')
+            user.update(user.email, user.name, 'K123', '+254798765432')
 
     @patch("currencyexchange.database.fxrates.FxRate.get_rate")
     def test_user_currency_update_update_balance_too(self, mock_get_rate):
@@ -67,7 +67,7 @@ class UserTests(TestCase):
         from currencyexchange.tests.utils import create_test_user
         user = create_test_user(db.session, balance=1, currency='USD')
         self.assertEqual(user.account_balance, 1)
-        user.update("newemail@domain.com", "New John", "KES")
+        user.update("newemail@domain.com", "New John", "KES", "+254712345678")
         db.session.refresh(user)
         self.assertEqual(user.default_currency_code, "KES")
         self.assertEqual(user.account_balance, 100)

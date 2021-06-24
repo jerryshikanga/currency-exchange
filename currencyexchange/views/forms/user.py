@@ -2,6 +2,7 @@ import phonenumbers
 from flask_wtf import FlaskForm
 from wtforms import StringField, validators, SubmitField
 
+
 class UserUpdateForm(FlaskForm):
     name = StringField('name', validators=[validators.DataRequired()])
     phone = StringField('Phone', validators=[validators.DataRequired()])

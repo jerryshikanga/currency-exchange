@@ -93,7 +93,8 @@ def edit_profile_post():
     user = User.query.filter_by(email=current_user.email).first()
 
     try:
-        user.update(form.email.data, form.name.data, form.currency.data, form.phone.data)
+        user.update(form.email.data, form.name.data,
+                    form.currency.data, form.phone.data)
         return redirect(url_for('main.profile'))
     except User.UserExistsException:
         flash('Email address already exists')

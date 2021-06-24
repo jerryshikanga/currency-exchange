@@ -60,7 +60,9 @@ def withdraw_post():
     amount = request.form.get('amount')
     try:
         current_user.withdraw(amount)
-        flash(f'Hello {current_user.name}, your withdrawal of {amount} has been received successfully.')
+        message = f'Hello {current_user.name}, your withdrawal of '\
+                  '{amount} has been received successfully.'
+        flash(message)
         return redirect(url_for('main.profile'))
     except Exception as e:
         flash(f'An error occurred. {e}')

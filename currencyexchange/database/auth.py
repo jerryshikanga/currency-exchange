@@ -120,22 +120,27 @@ class User(UserMixin, db.Model):
         description = f"Withdrawal initiated on {datetime.now()}"
         amount = float(amount)
         if amount > self.account_balance:
-            raise Transaction.InsufficientBalanceException(f"Account balance {self.account_balance} is insufficent for withdrawal of {amount}")
+            e = f"Account balance {self.account_balance} is "\
+                f"insufficent for withdrawal of {amount}"
+            raise Transaction.InsufficientBalanceException(e)
         # Add withdrawal logic here
         try:
             # based on Beyonic org settings, validate the currency
-            if not Transaction.validate_withdrawal_deposit_currency(self.default_currency_code):
-                error_message = f"You cannot deposit or withdraw in {self.default_currency_code}. Please update to either {Transaction.supported_deposit_withdrawal_currencies}."
-                raise Transaction.InvalidCurrencyException(error_message)
-            
+            if not Transaction.validate_withdrawal_deposit_currency(self.default_currency_code): # noqa
+                m = f"You cannot deposit or withdraw in "\
+                    f"{self.default_currency_code}. Please update to either"\
+                    f"{Transaction.supported_deposit_withdrawal_currencies}."
+                raise Transaction.InvalidCurrencyException(m)
+
             api_key = os.environ.get("BEYONIC_API_KEY")
             if not api_key:
-                raise Exception("API Key not set")
+                raise beyonic.errors.BeyonicError("API Key not set")
 
             beyonic.api_key = api_key
 
             if len(self.name.split(" ")) > 2:
-                first_name, last_name = self.name.split(" ")[0], self.name.split(" ")[1]
+                parts = self.name.split(" ")
+                first_name, last_name = parts[0], parts[1]
             else:
                 first_name, last_name = self.name, ""
             payment = beyonic.Payment.create(
@@ -147,11 +152,47 @@ class User(UserMixin, db.Model):
                 description=description,
                 metadata={'user_id': self.id}
             )
-            logger.info(f"Payment {payment.id} by user {self.id} created on Beyonic successfuly at {datetime.now()}")
+            m = f"Payment {payment.id} by user {self.id} created"\
+                f" on Beyonic successfuly at {datetime.now()}"
+            logger.info(m)
             # Finally debit account
             description += f";BeyonicPaymentID={payment.id}"
+            # this may be reversed by the webhook
             self.transact(amount, self.default_currency_code,
                           Transaction.Types.Withdrawal,
                           description=description)
         except Exception as e:
-            logger.error(f"Failed to request Beyonic withdrawal user : {self.id} Error : {e}")
+            m = f"Failed to request Beyonic withdrawal user : "\
+                f"{self.id} Error : {e}"
+            logger.error(m)
+
+    def request_deposit(self, amount):
+        description = f"Withdrawal initiated on {datetime.now()}"
+        amount = float(amount)
+        try:
+            # based on Beyonic org settings, validate the currency
+            if not Transaction.validate_beyonic_currency(self.default_currency_code): # noqa
+                m = f"You cannot deposit or withdraw in "\
+                    f"{self.default_currency_code}. Please update to either "\
+                    f"{Transaction.supported_deposit_withdrawal_currencies}."
+                raise Transaction.InvalidCurrencyException(m)
+
+            api_key = os.environ.get("BEYONIC_API_KEY")
+            if not api_key:
+                raise beyonic.errors.BeyonicError("API Key not set")
+            beyonic.api_key = api_key
+
+            collection_request = beyonic.CollectionRequest.create(
+                phonenumber=self.phone_number,
+                amount=amount,
+                currency=self.default_currency_code,
+                description=description,
+                metadata={'user_id': self.id},
+                send_instructions=True
+            )
+            logger.info(f"collection_request {collection_request.id} by '\
+                        'user {self.id} created on Beyonic successfuly '\
+                        'at {datetime.now()}")
+        except Exception as e:
+            logger.error(f"Failed to request Beyonic deposit user '\
+                         ': {self.id} Error : {e}")
