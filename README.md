@@ -113,6 +113,11 @@ app.app_context().push()
 # Sample query
 from currencyexchange.database.auth import User
 User.query.all()
+
+# Sample update user account
+from currencyexchange.database.transactions import Transaction
+nick = User.query.all()[-1]
+nick.transact(1000, "KES", Transaction.Types.Credit, "Freebies")
 ```
 
 ## TESTING & CI

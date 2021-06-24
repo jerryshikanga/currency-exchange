@@ -4,6 +4,7 @@ from werkzeug.security import check_password_hash
 from flask_login import login_user, logout_user, login_required, current_user
 
 from currencyexchange.database.auth import User
+from currencyexchange.views.forms.user import UserUpdateForm
 
 auth = Blueprint('auth', __name__)
 
@@ -70,8 +71,15 @@ def logout():
 @auth.route('/editprofile')
 @login_required
 def edit_profile():
+    form = UserUpdateForm()
+    form.currency.data = current_user.default_currency_code
+    form.name.data = current_user.name
+    # form.phone.data = current_user.default_currency_code
+    form.email.data = current_user.email
+    
     return render_template('profile_update_form.html',
-                           current_user=current_user)
+                           current_user=current_user,
+                           form=form)
 
 
 @auth.route('/editprofilepost', methods=['POST', 'PUT', 'PATCH'])

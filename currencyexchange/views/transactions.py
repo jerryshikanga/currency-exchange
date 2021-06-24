@@ -58,5 +58,10 @@ def withdraw():
 @login_required
 def withdraw_post():
     amount = request.form.get('amount')
-    flash(f'Your withdrawal of {amount} has been received successfully.')
-    return redirect(url_for('main.profile'))
+    try:
+        current_user.withdraw(amount)
+        flash(f'Hello {current_user.name}, your withdrawal of {amount} has been received successfully.')
+        return redirect(url_for('main.profile'))
+    except Exception as e:
+        flash(f'An error occurred. {e}')
+        return redirect(url_for('transactions.withdraw'))

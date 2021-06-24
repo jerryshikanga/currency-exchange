@@ -1,4 +1,5 @@
 import datetime
+from types import TracebackType
 from currencyexchange import db
 
 
@@ -40,13 +41,21 @@ class Transaction(db.Model):
         'XCD', 'XDR', 'XOF', 'XPF', 'YER', 'ZAR', 'ZMK', 'ZMW', 'ZWL'
     ]
 
+    supported_deposit_withdrawal_currencies = ['KES', 'UGX', 'TZS']
+
     @classmethod
     def validate_currency(cls, code):
         return code in Transaction.supported_currencies
 
+    @classmethod
+    def validate_withdrawal_deposit_currency(self, code):
+        return code in Transaction.supported_deposit_withdrawal_currencies
+
     class Types:
         Debit = 'Debit'
         Credit = 'Credit'
+        Withdrawal = 'Withdrawal'
+        Deposit = 'Deposit'
 
     @property
     def formatted_date(self):

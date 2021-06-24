@@ -1,11 +1,17 @@
+import os
+import logging
 from datetime import datetime
 from decimal import Decimal
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
+from sqlalchemy_utils import PhoneNumber
+import beyonic
 
 from currencyexchange import db
 from currencyexchange.database.fxrates import FxRate
 from currencyexchange.database.transactions import Transaction
+
+logger = logging.getLogger(__name__)
 
 
 class User(UserMixin, db.Model):
@@ -22,6 +28,15 @@ class User(UserMixin, db.Model):
         default=0, )
     transactions = db.relationship('Transaction', backref='user',
                                    lazy='joined')
+    
+    _phone_number = db.Column(db.Unicode(255))
+    phone_country_code = db.Column(db.Unicode(8))
+
+    phone_number = db.composite(
+        PhoneNumber,
+        _phone_number,
+        phone_country_code
+    )
 
     class UserExistsException(Exception):
         """
@@ -110,11 +125,40 @@ class User(UserMixin, db.Model):
 
     def withdraw(self, amount):
         description = f"Withdrawal initiated on {datetime.now()}"
+        amount = float(amount)
         if amount > self.account_balance:
-            raise Transaction.InsufficientBalanceException
+            raise Transaction.InsufficientBalanceException(f"Account balance {self.account_balance} is insufficent for withdrawal of {amount}")
         # Add withdrawal logic here
+        try:
+            # based on Beyonic org settings, validate the currency
+            if not Transaction.validate_withdrawal_deposit_currency(self.default_currency_code):
+                error_message = f"You cannot deposit or withdraw in {self.default_currency_code}. Please update to either {Transaction.supported_deposit_withdrawal_currencies}."
+                raise Transaction.InvalidCurrencyException(error_message)
+            
+            api_key = os.environ.get("BEYONIC_API_KEY")
+            if not api_key:
+                raise Exception("API Key not set")
 
-        # Finally debit account
-        self.transact(amount, self.default_currency_code,
-                      Transaction.Types.Debit,
-                      description=description)
+            beyonic.api_key = api_key
+
+            if len(self.name.split(" ")) > 2:
+                first_name, last_name = self.name.split(" ")[0], self.name.split(" ")[1]
+            else:
+                first_name, last_name = self.name, ""
+            payment = beyonic.Payment.create(
+                phonenumber='+80000000001',
+                first_name=first_name,
+                last_name=last_name,
+                amount=amount,
+                currency=self.default_currency_code,
+                description=description,
+                metadata={'user_id': self.id}
+            )
+            logger.info(f"Payment {payment.id} by user {self.id} created on Beyonic successfuly at {datetime.now()}")
+            # Finally debit account
+            description += f";BeyonicPaymentID={payment.id}"
+            self.transact(amount, self.default_currency_code,
+                          Transaction.Types.Withdrawal,
+                          description=description)
+        except Exception as e:
+            logger.error(f"Failed to request Beyonic withdrawal user : {self.id} Error : {e}")
