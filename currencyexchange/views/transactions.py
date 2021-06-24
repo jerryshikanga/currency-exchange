@@ -67,3 +67,21 @@ def withdraw_post():
     except Exception as e:
         flash(f'An error occurred. {e}')
         return redirect(url_for('transactions.withdraw'))
+
+
+@transactions.route('/beyonic_payments_post', methods=['POST'])
+def beyonic_payments_post():
+    data = request.data
+    logger.info(f"Received data from Beyonic {data}")
+    # retrieve payment ad update it in db
+    # if failed reverse debit transaction
+    return "OK"
+
+
+@transactions.route('/beyonic_cr_post', methods=['POST'])
+def beyonic_cr_post():
+    data = request.data
+    logger.info(f"Received data from Beyonic {data}")
+    # check if payment exists
+    # if not create database record
+    return "OK"
