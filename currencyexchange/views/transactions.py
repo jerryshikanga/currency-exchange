@@ -44,7 +44,10 @@ def deposit():
 @login_required
 def deposit_post():
     amount = request.form.get('amount')
-    flash(f'Your deposit of {amount} has been received successfully.')
+    current_user.request_deposit(amount)
+    flash(f'Your deposit of {amount} has been received successfully.'
+          ' Please wait for a pop up on your phone.'
+          ' Amount will be credited after confirmation.')
     return redirect(url_for('main.profile'))
 
 
@@ -58,5 +61,30 @@ def withdraw():
 @login_required
 def withdraw_post():
     amount = request.form.get('amount')
-    flash(f'Your withdrawal of {amount} has been received successfully.')
-    return redirect(url_for('main.profile'))
+    try:
+        current_user.withdraw(amount)
+        message = f'Hello {current_user.name}, your withdrawal of '\
+                  '{amount} has been received successfully.'
+        flash(message)
+        return redirect(url_for('main.profile'))
+    except Exception as e:
+        flash(f'An error occurred. {e}')
+        return redirect(url_for('transactions.withdraw'))
+
+
+@transactions.route('/beyonic_payments_post', methods=['POST'])
+def beyonic_payments_post():
+    data = request.data
+    logger.info(f"Received data from Beyonic {data}")
+    # retrieve payment ad update it in db
+    # if failed reverse debit transaction
+    return "OK"
+
+
+@transactions.route('/beyonic_cr_post', methods=['POST'])
+def beyonic_cr_post():
+    data = request.data
+    logger.info(f"Received data from Beyonic {data}")
+    # check if payment exists
+    # if not create database record
+    return "OK"
