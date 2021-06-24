@@ -65,6 +65,7 @@ export FLASK_APP=currencyexchange
 export FLASK_DEBUG=1
 export SECRET_KEY=your_secret_key 
 export FIXER_SECRET_KEY=yourkeyhere # Get this from http://fixer.io. Its important for currency exchange purposes
+export BEYONIC_API_KEY=beyonic_api_key # get this from your user account section in the app.beyoic.cpom dashboard
 ```
 
 Create a migration repository. This will add a migrations folder to your application.
@@ -102,6 +103,7 @@ os.environ['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 os.environ['FIXER_SECRET_KEY'] = 'fixer.io_secret_key'
 os.environ['SECRET_KEY'] = 'secretkey'
 os.environ['FLASK_ENV'] = 'development' 
+os.environ['BEYONIC_API_KEY'] = 'beyonic-api-key' 
 
 
 # Push the app context
@@ -122,8 +124,15 @@ nick.transact(1000, "KES", Transaction.Types.Credit, "Freebies")
 
 ## TESTING & CI
 The app has several types of testing and code quality tools
-1. Linter for validating the code syntax and formatting. For this the python package [flake8](http://flake8.pycqa.org) is used.
-2. Unit tests. These are defined to ensure each feature works as expected. They are tied to models and their respective functions.
+1. Linter for validating the code syntax and formatting. For this the python package [flake8](http://flake8.pycqa.org) is used. TO run this in your shell 
+```shell
+flake8 --exclude migrations
+```
+2. Unit tests. These are defined to ensure each feature works as expected. They are tied to models and their respective functions. To run this in your shell
+```shell
+# ensure to have set your env variables as above before you run the commnd below
+pytest
+```
 3. Integration tests. These are run on views to test out the whole user journey.
 
 So as to not make actual api calls, we mock requests to the api library. This is by use of the [python mock library](https://realpython.com/python-mock-library/).

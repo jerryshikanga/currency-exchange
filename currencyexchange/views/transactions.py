@@ -44,7 +44,10 @@ def deposit():
 @login_required
 def deposit_post():
     amount = request.form.get('amount')
-    flash(f'Your deposit of {amount} has been received successfully.')
+    current_user.request_deposit(amount)
+    flash(f'Your deposit of {amount} has been received successfully.'
+          ' Please wait for a pop up on your phone.'
+          ' Amount will be credited after confirmation.')
     return redirect(url_for('main.profile'))
 
 
